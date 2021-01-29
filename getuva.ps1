@@ -21,7 +21,8 @@ param (
     [Parameter(Mandatory = $true)]
     [string[]] $ProblemIDs,
     [switch] $View,
-    [string] $Output = "./pdf"
+    [switch] $Print,
+    [string] $Output = "./uva-pdf"
 )
 if (! (Test-Path $Output)) {
     mkdir $Output
@@ -32,5 +33,8 @@ foreach ($id in $ProblemIDs) {
     Invoke-WebRequest "https://uva.onlinejudge.org/external/$problemFolder/$id.pdf" -OutFile "$Output/$id.pdf" -SkipCertificateCheck
     if ($View) {
         Start-Process "$Output/$id.pdf"
+    }
+    if ($Print) {
+        Start-Process "$Output/$id.pdf" -Verb Print
     }
 }

@@ -22,3 +22,9 @@ $ pacman -S mingw-w64-x86_64-gdb
 ## Begin developing
 
 Open a folder from VS Code. Make a new .cpp file from Explorer. After coding, ctrl + alt + B and select "C/C++: g++.exe build active file". Run the program in terminal.
+
+## Working on problems
+
+The problem statements can be downloaded using the PowerShell scripts. `./getuva 1543 -View` downloads UVa1543 to `./uva-pdf/1543.pdf` and opens it.
+
+The `run.ps1` script handles I/O redirection and timing. The program needs to be in `./bin` by default.
