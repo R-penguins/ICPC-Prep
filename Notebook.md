@@ -17,15 +17,15 @@ numeric_limits<int>::min()  // -2147483648
 ```C++
 ostream &operator<<(ostream &os, const __int128 &x)
 {
-    static const __int128 MOD = 1e19;
-    if (x < 0)
-        os << '-';
-    if (x / MOD)
-        os << static_cast<unsigned long long>(x < 0 ? -1 * (x / MOD) : x / MOD)
-           << setfill('0') << setw(19) << static_cast<unsigned long long>(x < 0 ? -1 * (x % MOD) : x % MOD) << setfill(' ');
-    else
-        os << static_cast<unsigned long long>(x < 0 ? -1 * x : x);
-    return os;
+  static const __int128 MOD = 1e19;
+  if (x < 0)
+    os << '-';
+  if (x / MOD)
+    os << static_cast<unsigned long long>(x < 0 ? -1 * (x / MOD) : x / MOD)
+        << setfill('0') << setw(19) << static_cast<unsigned long long>(x < 0 ? -1 * (x % MOD) : x % MOD) << setfill(' ');
+  else
+    os << static_cast<unsigned long long>(x < 0 ? -1 * x : x);
+  return os;
 }
 ```
 
@@ -71,6 +71,14 @@ while (getline(cin, line))
 }
 ```
 
+Fill a known-size vector
+
+```C++
+vector<int> arr(n);
+for (int& i : arr)
+    cin >> i;
+```
+
 - Floating point
 
 ```C++
@@ -105,6 +113,18 @@ stoi(str, 0, 8); // 34, in octal
 string str2 = "pi = 3.14";
 stod(str2.substr(str2.find_first_of("+-.012345789"))); // 3.14
 ```
+
+## Math
+
+### Constants
+
+```C++
+const double PI = acos(-1.0);
+```
+
+### Computational geometry
+
+- Refer to `2Dgeometry.cpp`
 
 ## Techniques
 
