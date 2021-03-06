@@ -1,11 +1,13 @@
 # ICPC Notebook
 
+Assuming g++ compiler with -std=gnu++17 (Kattis setting)
+
 ## C++ Language
 
 ### Limits
 
 ```C++
-numeric_limits<int>::min()  // -2147483648
+-numeric_limits<int>::infinity()  // -∞
 ```
 
 `int`: [-2<sup>31</sup>, 2<sup>31</sup> - 1] = [-2147483648, 2147483647], about 2 * 10<sup>9</sup>
@@ -30,13 +32,6 @@ ostream &operator<<(ostream &os, const __int128 &x)
 ```
 
 ### I/O
-
-- Acceleration
-
-```C++
-ios::sync_with_stdio(false);
-cin.tie(nullptr);
-```
 
 - Framework
 
@@ -116,15 +111,50 @@ stod(str2.substr(str2.find_first_of("+-.012345789"))); // 3.14
 
 ## Math
 
-### Constants
+### Max with multiple elements
 
 ```C++
-const double PI = acos(-1.0);
+max({a, b, c});
 ```
 
 ### Computational geometry
 
-- Refer to `2Dgeometry.cpp`
+- A basic `Point` class
+
+```C++
+struct Point
+{
+  double x;
+  double y;
+  Point(const double x = 0, const double y = 0) : x(x), y(y) { }
+  Point(const Point& p) : x(p.x), y(p.y) { }
+};
+
+istream& operator>>(istream& is, const Point& p)
+{
+  is >> p.x >> p.y;
+}
+```
+
+- `geometry.cpp`
+
+### Numeric algorithms
+
+- `number_theory.cpp`
+- `linear_algebra.cpp`
+- `reduced_row_echelon.cpp`
+- `linear_programming.cpp`
+
+## Graph Theory
+
+- `dijkstra.cpp`
+- `scc.cpp`
+
+## Data structures
+
+### Set
+
+Complexity: set log(n), unordered_set O(1)
 
 ## Techniques
 
