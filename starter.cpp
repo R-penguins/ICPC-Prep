@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 using VI = vector<int>;
-using VII = vector<VI>;
+using VVI = vector<VI>;
 using VD = vector<double>;
 using VVD = vector<VD>;
 using VS = vector<string>;

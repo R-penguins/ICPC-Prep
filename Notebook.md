@@ -7,7 +7,8 @@ Assuming g++ compiler with -std=gnu++17 (Kattis setting)
 ### Limits
 
 ```C++
--numeric_limits<int>::infinity()  // -∞
+numeric_limits<int>::max()
+-numeric_limits<double>::infinity()  // -∞
 ```
 
 `int`: [-2<sup>31</sup>, 2<sup>31</sup> - 1] = [-2147483648, 2147483647], about 2 * 10<sup>9</sup>

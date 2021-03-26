@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 using VI = vector<int>;
-using VII = vector<VI>;
+using VVI = vector<VI>;
 using VD = vector<double>;
 using VVD = vector<VD>;
 using VS = vector<string>;
@@ -17,24 +17,6 @@ constexpr double EPS = 1e-12;
 int mod(int a, int b)
 {
   return ((a % b) + b) % b;
-}
-
-// computes gcd(a,b)
-int gcd(int a, int b)
-{
-  while (b)
-  {
-    int t = a % b;
-    a = b;
-    b = t;
-  }
-  return a;
-}
-
-// computes lcm(a,b)
-int lcm(int a, int b)
-{
-  return a / gcd(a, b) * b;
 }
 
 // (aˆb) mod m via successive squaring
