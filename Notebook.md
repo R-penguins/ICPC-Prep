@@ -7,8 +7,11 @@ Assuming g++ compiler with -std=gnu++17 (Kattis setting)
 ### Limits
 
 ```C++
-numeric_limits<int>::max()
--numeric_limits<double>::infinity()  // -∞
+INT_MAX
+numeric_limits<double>::max()
+-INFINITY // -∞, for floating point only
+NAN // for floating point only
+isnan()
 ```
 
 `int`: [-2<sup>31</sup>, 2<sup>31</sup> - 1] = [-2147483648, 2147483647], about 2 * 10<sup>9</sup>
@@ -31,6 +34,8 @@ ostream &operator<<(ostream &os, const __int128 &x)
   return os;
 }
 ```
+
+`double`: +-2<sup>52</sup> about 4.5 * 10<sup>15</sup> precision
 
 ### I/O
 
@@ -148,7 +153,87 @@ istream& operator>>(istream& is, const Point& p)
 
 ## Graph Theory
 
-- `dijkstra.cpp`
+### Representation
+
+- Adjacency list O(V + E)
+
+```C++
+vector<vector<int>> adj(v); // vertex number of all neighbors
+```
+
+- Adjacency matrix, for quick query of edges' existance or dense graph (E close to V<sup>2</sup>), O(V<sup>2</sup>)
+
+```C++
+vector<vector<int>> g(v, vector<int>(v)); // edge weights
+```
+
+### DAG path count
+
+O(V + E)
+
+- Top-down DP
+
+```C++
+vector<int> path_num;
+int num(int u, int terminal)
+{
+  if (u == terminal)
+    return 1;
+  if (path_num[u])
+    return path_num[u];
+  for (Edge& edge : adj[u])
+    path_num[u] += num(edge.to);
+  return path_num[u];
+}
+```
+
+- Bottom-up DP with topological sort
+
+
+### Shortest path
+
+- Bellman-Ford
+
+O(VE)
+
+- Dijkstra
+
+O(E log(V)) with adjacency list, no negative cycle
+
+```C++
+struct Edge
+{
+  int to, weight;
+  Edge() {};
+  Edge(int t, int w) : to(t), weight(w) {};
+};
+
+void dijkstra(vector<vector<Edge>>& adj, int s, /* int t, */ vector<double>& dist, vector<int>& p)
+{
+  dist = vector<double>(adj.size(), INFINITY); // use INFINITY in double if dist might be added elsewhere
+  dist[s] = 0;
+  p = vector<int>(adj.size());
+  priority_queue<PII, vector<PII>, greater<PII>> q; // weight, vertex
+  q.emplace(0, s);
+  while (!q.empty())
+  {
+    PII cur = q.top();
+    q.pop();
+    // if (cur.second == t)
+    //   break;
+    if (dist[cur.second] != cur.first)
+      continue;
+    for (Edge& edge : adj[cur.second])
+      if (cur.first + edge.weight < dist[edge.to])
+      {
+        dist[edge.to] = cur.first + edge.weight;
+        p[edge.to] = cur.second;
+        q.emplace(dist[edge.to], edge.to);
+      }
+  }
+}
+```
+
 - `scc.cpp`
 
 ## Data structures

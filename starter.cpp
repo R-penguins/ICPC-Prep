@@ -13,7 +13,7 @@ using PDD = pair<double, double>;
 constexpr double pi = 3.1415926535897932385;
 constexpr double EPS = 1e-12;
 
-int main(int argc, char const *argv[])
+int main()
 {
   ios::sync_with_stdio(false);
   cin.tie(nullptr);
