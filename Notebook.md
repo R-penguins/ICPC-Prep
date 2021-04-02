@@ -164,8 +164,12 @@ vector<vector<int>> adj(v); // vertex number of all neighbors
 - Adjacency matrix, for quick query of edges' existance or dense graph (E close to V<sup>2</sup>), O(V<sup>2</sup>)
 
 ```C++
-vector<vector<int>> g(v, vector<int>(v)); // edge weights
+vector<vector<int>> w(v, vector<int>(v)); // edge weights
 ```
+
+### Topological sort
+
+O(V + E). DFS and insert at front of list
 
 ### DAG path count
 
@@ -192,11 +196,48 @@ int num(int u, int terminal)
 
 ### Shortest path
 
-- Bellman-Ford
+#### Bellman-Ford
 
 O(VE)
 
-- Dijkstra
+```C++
+bool bellman_ford(vector<vector<Edge>>& adj, int s, vector<double>& dist, vector<int>& p)
+{
+  int n = adj.size();
+  dist = vector<double>(n, INFINITY); // use INFINITY in double if dist might be added
+  dist[s] = 0;
+  p = vector<int>(n);
+  vector<bool> in_queue(n);
+  in_queue[s] = true;
+  vector<int> cnt(n);
+  cnt[s] = 1;
+
+  queue<int> q;
+  q.push(s);
+  while (!q.empty())
+  {
+    int cur = q.front();
+    q.pop();
+    for (Edge& edge : adj[cur])
+      if (dist[cur] + edge.weight < dist[edge.to])
+      {
+        dist[edge.to] = dist[cur] + edge.weight;
+        p[edge.to] = cur;
+        if (!in_queue[edge.to])
+        {
+          if (++cnt[edge.to] > n - 1)
+            return true;
+          q.push(edge.to);
+          in_queue[edge.to] = true;
+        }
+      }
+  }
+  return false;
+}
+
+```
+
+#### Dijkstra
 
 O(E log(V)) with adjacency list, no negative cycle
 
@@ -245,5 +286,9 @@ Complexity: set log(n), unordered_set O(1)
 ## Techniques
 
 ### Discretization
+
+### Continuous Sum
+
+a1 + a2 + ... + an = Bn - a(n - 1)
 
 // UVa221
