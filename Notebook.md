@@ -117,9 +117,10 @@ stod(str2.substr(str2.find_first_of("+-.012345789"))); // 3.14
 
 ## Math
 
-### Max with multiple elements
+### Tricks
 
 ```C++
+n * pow(2, m) = (n << m); // m: non-negative int
 max({a, b, c});
 ```
 
@@ -283,6 +284,186 @@ void dijkstra(vector<vector<Edge>>& adj, int s, /* int t, */ vector<double>& dis
 
 Complexity: set log(n), unordered_set O(1)
 
+### Disjoint-set
+
+- Average O(1)
+
+```C++
+struct Uf {
+  Uf(int n) : p(n) {
+    iota(p.begin(), p.end(), 0);
+  }
+  int find(int x) {
+    if (x != p[x])
+      p[x] = find(p[x]);
+    return p[x];
+  }
+  int merge(int x, int y) {
+    p[find(x)] = find(y);
+  }
+  vector<int> p;
+};
+```
+
+union by rank
+
+```C++
+struct Uf {
+  Uf(int n) : p(n), size(n, 1) {
+    iota(p.begin(), p.end(), 0);
+  }
+  int find(int x) {
+    if (x != p[x])
+      p[x] = find(p[x]);
+    return p[x];
+  }
+  int merge(int x, int y) {
+    int xp = find(x), yp = find(y);
+    if (xp == yp)
+      return;
+    if (size[xp] > size[yp])
+      swap(xp, yp);
+    p[xp] = yp;
+    size[yp] += xp;
+  }
+  vector<int> p, size;
+};
+```
+
+### Binary Indexed Tree / Fenwick Tree
+
+For mutable range sum query.
+
+- Add, sum: O(log n)
+
+⚠ BIT index begin with 1. Sum[m, n] = sum(n) - sum(m - 1)
+
+```C++
+struct Bit
+{
+  Bit(int size) : tree(size + 1) { }
+  Bit(vector<int>& arr) : tree(arr)
+  {
+    for (int i = 1; i < tree.size(); ++i)
+    {
+      int p = i + (i & -i);
+      if (p < tree.size())
+        tree[p] += tree[i];
+    }
+  }
+  int sum(int ind)
+  {
+    int ans = 0;
+    while (ind)
+    {
+      ans += tree[ind];
+      ind -= (ind & -ind);
+    }
+    return ans;
+  }
+  void add(int ind, int val)
+  {
+    while (ind < tree.size())
+    {
+      tree[ind] += val;
+      ind += (ind & -ind);
+    }
+  }
+  vector<int> tree;
+};
+```
+
+### Sparse-Table
+
+For Range Minimum Query. (Immutable)
+
+- Initialize: O(n log n)
+- Query: O(1)
+
+```C++
+struct St {
+  St(vector<int> &arr) : d(arr.size()) {
+    int n = d.size();
+    for (int i = 0; i < n; ++i) {
+      d[i].reserve(sizeof(int) * 8 - __builtin_clz(n - i)); // optional. can use log2(n)
+      d[i].push_back(arr[i]);
+    }
+    for (int j = 1; (1 << j) <= n; ++j)
+      for (int i = 0; i + (1 << j) <= n; ++i)
+        d[i].push_back(max(d[i][j - 1], d[i + (1 << j - 1)][j - 1]));
+  }
+  int query(int begin, int end) {
+    int k = 0;
+    while ((1 << k + 1) <= end - begin)
+      ++k;
+    return max(d[begin][k], d[end - (1 << k)][k]);
+  }
+  vector<vector<int>> d;
+};
+```
+
+### Segment Tree
+
+Range query, single modification
+
+```C++
+struct Segtree {
+  Segtree(int n) : n(n), tree(2 * n){};
+  void init() {
+    for (int i = n - 1; i > 0; --i)
+      tree[i] = tree[2 * i] + tree[2 * i + 1];
+  }
+  int query(int begin, int end) {
+    int res = 0;
+    for (begin += n, end += n; begin < end; begin /= 2, end /= 2) {
+      if (begin % 2)
+        res += tree[begin++];
+      if (end % 2)
+        res += tree[--end];
+    }
+    return res;
+  }
+  void modify(int pos, int val) {
+    for (tree[pos += n] = val; pos > 1; pos /= 2)
+      tree[pos / 2] = tree[pos] + tree[pos ^ 1];
+  }
+  vector<int> tree;
+  int n;
+};
+```
+
+Single query, range modification
+
+```C++
+struct Segtree {
+  Segtree(int n) : n(n), tree(2 * n){};
+  int query(int pos) {
+    int res = 0;
+    for (pos += 0; pos > 0; pos /= 2)
+      res += tree[pos];
+    return res;
+  }
+  void modify(int begin, int end, int val) {
+    for (begin += n, end += n; begin < end; begin /= 2, end /= 2) {
+      if (begin % 2)
+        tree[begin++] += val;
+      if (end % 2)
+        tree[--end] += val;
+  }
+  void push() {
+    for (int i = 1; i < n; ++i) {
+      tree[2 * i] += tree[i];
+      tree[2 * i + 1] += tree[i];
+      tree[i] = 0;
+    }
+  }
+  vector<int> tree;
+  int n;
+};
+```
+
+Range query, range modification. Lazy propagation.
+
 ## Techniques
 
 ### Discretization
@@ -290,5 +471,34 @@ Complexity: set log(n), unordered_set O(1)
 ### Continuous Sum
 
 a1 + a2 + ... + an = Bn - a(n - 1)
+
+### Inversion number with merge-sort
+
+O(n log n)
+
+```C++
+VI arr;
+VI temp;
+int inv_num(int l, int r)
+{
+  if (l + 1 == r)
+    return 0;
+  int mid = l + (r - l) / 2;
+  int ans = inv_num(l, mid) + inv_num(mid, r);
+  int i = l;
+  int j = mid;
+  for (int k = l; k < r; ++k)
+    if (i == mid || (j < r && arr[j] < arr[i]))
+    {
+      temp[k] = arr[j++];
+      ans += mid - i;
+    }
+    else
+      temp[k] = arr[i++];
+  copy(temp.begin() + l, temp.begin() + r, arr.begin() + l);
+  return ans;
+}
+
+```
 
 // UVa221
