@@ -284,6 +284,17 @@ void dijkstra(vector<vector<Edge>>& adj, int s, /* int t, */ vector<double>& dis
 
 Complexity: set log(n), unordered_set O(1)
 
+### Heap
+
+```C++
+priority_queue<int> q; // Max heap
+priority_queue<int, vector<int>, greater<int>> q; // Min heap
+
+// custom comparator
+auto cmp = [](Edge& a, Edge& b) { return a.val > b.val; };
+priority_queue<Edge, vector<Edge>, decltype(cmp)> q(cmp);
+```
+
 ### Disjoint-set
 
 - Average O(1)
@@ -305,7 +316,7 @@ struct Uf {
 };
 ```
 
-union by rank
+union by size
 
 ```C++
 struct Uf {
