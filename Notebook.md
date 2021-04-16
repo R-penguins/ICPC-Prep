@@ -475,6 +475,205 @@ struct Segtree {
 
 Range query, range modification. Lazy propagation.
 
+Increment update, max query.
+
+```C++
+struct Segtree {
+  Segtree(int n)
+      : n(n), tree(2 * n), d(n), h(sizeof(int) * 8 - __builtin_clz(n)){};
+  void init() {
+    for (int i = n - 1; i > 0; --i)
+      tree[i] = max(tree[2 * i], tree[2 * i + 1]);
+  }
+  void apply(int pos, int val) {
+    tree[pos] += val;
+    if (pos < n)
+      d[pos] += val;
+  }
+  void update(int pos) {
+    while (pos > 1) {
+      pos /= 2;
+      tree[pos] = max(tree[pos * 2], tree[pos * 2 + 1]) + d[pos];
+    }
+  }
+  void push(int pos) {
+    for (int height = h; height > 0; --height) {
+      int i = pos >> height;
+      if (d[i]) { // is labeled
+        apply(2 * i, d[i]);
+        apply(2 * i + 1, d[i]);
+        d[i] = 0;
+      }
+    }
+  }
+  int query(int begin, int end) {
+    push(begin += n);
+    push((end += n) - 1);
+    int res = INT_MIN;
+    for (; begin < end; begin /= 2, end /= 2) {
+      if (begin % 2)
+        res = max(res, tree[begin++]);
+      if (end % 2)
+        res = max(res, tree[--end]);
+    }
+    return res;
+  }
+  void modify(int begin, int end, int val) {
+    begin += n;
+    end += n;
+    for (int l = begin, r = end; l < r; l /= 2, r /= 2) {
+      if (l % 2)
+        apply(l++, val);
+      if (r % 2)
+        apply(--r, val);
+    }
+    update(begin);
+    update(end - 1);
+  }
+  vector<int> tree, d;
+  int n, h;
+};
+```
+
+Increment modification, sum query
+
+```C++
+struct Segtree {
+  Segtree(int n)
+      : n(n), tree(2 * n), d(n), h(sizeof(int) * 8 - __builtin_clz(n)){};
+  void init() {
+    for (int i = n - 1; i > 0; --i)
+      tree[i] = tree[2 * i] + tree[2 * i + 1];
+  }
+  void update(int pos) {
+    int k = 2;
+    while (pos > 1) {
+      pos /= 2;
+      tree[pos] = tree[pos * 2] + tree[pos * 2 + 1] + d[pos] * k;
+      k *= 2;
+    }
+  }
+  void apply(int pos, int val, int len) {
+    tree[pos] += val * len;
+    if (pos < n)
+      d[pos] += val;
+  }
+  void push(int pos) {
+    for (int height = h, k = 1 << (h - 1); height > 0; --height, k /= 2) {
+      int i = pos >> height;
+      if (d[i]) {
+        apply(2 * i, d[i], k);
+        apply(2 * i + 1, d[i], k);
+        d[i] = 0;
+      }
+    }
+  }
+  LL query(int begin, int end) {
+    begin += n;
+    end += n;
+    push(begin);
+    push(end - 1);
+    LL res = 0;
+    for (; begin < end; begin /= 2, end /= 2) {
+      if (begin % 2)
+        res += tree[begin++];
+      if (end % 2)
+        res += tree[--end];
+    }
+    return res;
+  }
+  void modify(int begin, int end, int val) {
+    begin += n;
+    end += n;
+    for (int l = begin, r = end, k = 1; l < r; l /= 2, r /= 2, k *= 2) {
+      if (l % 2)
+        apply(l++, val, k);
+      if (r % 2)
+        apply(--r, val, k);
+    }
+    update(begin);
+    update(end - 1);
+  }
+  vector<long long> tree, d;
+  int n, h;
+};
+```
+
+Assignment update, sum query
+
+```C++
+struct Segtree {
+  Segtree(int n)
+      : n(n), tree(2 * n), d(n), h(sizeof(int) * 8 - __builtin_clz(n)){};
+  void init() {
+    for (int i = n - 1; i > 0; --i)
+      tree[i] = tree[2 * i] + tree[2 * i + 1];
+  }
+  void calc(int pos, int len) {
+    tree[pos] = d[pos] ? (d[pos] * len) : (tree[pos * 2] + tree[pos * 2 + 1]);
+  }
+  void apply(int pos, int val, int len) {
+    tree[pos] = val * len;
+    if (pos < n)
+      d[pos] = val;
+  }
+  void push(int pos) {
+    for (int height = h, k = 1 << (h - 1); height > 0; --height, k /= 2) {
+      int i = pos >> height;
+      if (d[i]) {
+        apply(2 * i, d[i], k);
+        apply(2 * i + 1, d[i], k);
+        d[i] = 0;
+      }
+    }
+  }
+  int query(int begin, int end) {
+    push(begin += n);
+    push(end += n);
+    int res = 0;
+    for (; begin < end; begin /= 2, end /= 2) {
+      if (begin % 2)
+        res += tree[begin++];
+      if (end % 2)
+        res += tree[--end];
+    }
+    return res;
+  }
+  void modify(int begin, int end, int val) {
+    if (val == 0)
+      return;
+    begin += n;
+    end += n;
+    push(begin);
+    push(end - 1);
+    bool cl = false, cr = false;
+    int k = 1;
+    for (; begin < end; begin /= 2, end /= 2, k *= 2) {
+      if (cl)
+        calc(begin - 1, k);
+      if (cr)
+        calc(end, k);
+      if (begin % 2) {
+        apply(begin++, val, k);
+        cl = true;
+      }
+      if (end % 2) {
+        apply(--end, val, k);
+        cr = true;
+      }
+    }
+    for (--begin; end > 0; begin /= 2, end /= 2, k *= 2) {
+      if (cl)
+        calc(begin, k);
+      if (cr && (!cl || begin != end))
+        calc(end, k);
+    }
+  }
+  vector<int> tree, d;
+  int n, h;
+};
+```
+
 ## Techniques
 
 ### Discretization
