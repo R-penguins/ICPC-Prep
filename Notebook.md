@@ -168,6 +168,10 @@ vector<vector<int>> adj(v); // vertex number of all neighbors
 vector<vector<int>> w(v, vector<int>(v)); // edge weights
 ```
 
+### Tree
+
+n - 1 edges, no cycles
+
 ### Topological sort
 
 O(V + E). DFS and insert at front of list
