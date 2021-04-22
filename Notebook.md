@@ -174,7 +174,7 @@ n - 1 edges, no cycles
 
 ### Topological sort
 
-O(V + E). DFS and insert at front of list
+O(V + E). DFS and insert at front of list when finishing a vertex
 
 ### DAG path count
 
@@ -198,6 +198,49 @@ int num(int u, int terminal)
 
 - Bottom-up DP with topological sort
 
+### Cut vertex / bridge
+
+For undirected graph, root is cut vertex when it has 2 or more children. Let low(v) be the earlist connected ancestor's previsit time. if low(u.child) >= pre(u), u is a cut vertex. if low(u.child) > pre(u), (u, v) is a bridge.
+
+```C++
+vector<vector<int>> adj;
+vector<int> pre /* 0 */, low;
+vector<bool> iscut; // false
+int dfs_clock = 0;
+int dfs(int u, int p)
+{
+  int lowu = pre[u] = ++dfs_clock;
+  int child = 0;
+  for (int v : adj[u]) {
+    if (!pre[v]) {
+      ++child;
+      int lowv = dfs(v, u);
+      lowu = min(lowu, lowv);
+      if (lowv >= pre[u])
+        iscut[u] = true;
+    } else if (pre[v] < pre[u] && v != p)
+      lowu = min(lowu, pre[v]);
+  }
+  if (p < 0 && child == 1)
+    iscut[u] = false;
+  low[u] = lowu;
+  return lowu;
+}
+```
+
+Bi-connected: every pair of vertices has at least 2 paths of unique vetices. No cut vertex. Every pair of edges in the same simple loop.
+
+Edge bi-connected: every pair of vertices has at least 2 paths of unique edges. No bridges. Every edge in a loop.
+
+code: p416
+
+### Strongly connected components
+
+Kosaraju: DFS in reverse graph in reversed topological sorted order (2 DFS).
+
+Tarjan: p422
+
+### 2-SAT as directed graph
 
 ### Shortest path
 
@@ -256,7 +299,7 @@ struct Edge
 
 void dijkstra(vector<vector<Edge>>& adj, int s, /* int t, */ vector<double>& dist, vector<int>& p)
 {
-  dist = vector<double>(adj.size(), INFINITY); // use INFINITY in double if dist might be added elsewhere
+  dist.assign(adj.size(), INFINITY); // use INFINITY in double if dist might be added elsewhere
   dist[s] = 0;
   p = vector<int>(adj.size());
   priority_queue<PII, vector<PII>, greater<PII>> q; // weight, vertex
@@ -280,7 +323,11 @@ void dijkstra(vector<vector<Edge>>& adj, int s, /* int t, */ vector<double>& dis
 }
 ```
 
-- `scc.cpp`
+### Minimum spanning tree
+
+Connect all vertices, min weight.
+
+Kruskal: sort edges, add if u, v not in the same set with Union-Find.
 
 ## Data structures
 
@@ -712,7 +759,20 @@ int inv_num(int l, int r)
   copy(temp.begin() + l, temp.begin() + r, arr.begin() + l);
   return ans;
 }
+```
 
+### Ordering / all permutations
+
+n! orderings
+
+```C++
+VI arr(4);
+iota(arr.begin(), arr.end(), 0);
+do {
+  for (int i : arr)
+    cout << i << ' ';
+  cout << '\n';
+} while (next_permutation(arr.begin(), arr.end()));
 ```
 
 // UVa221
